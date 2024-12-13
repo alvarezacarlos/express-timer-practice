@@ -64,10 +64,12 @@ const stopTimer = async (req, res) => {
         timerId: timer.id
       });
 
-      if (diffHours >= 8 && !timer.notificationSent) {
-        await sendNotification(startTime, endTime);
-        await timer.update({ notificationSent: true });
-      }
+      // if (diffHours >= 8 && !timer.notificationSent) {
+      //   await sendNotification(startTime, endTime);
+      //   await timer.update({ notificationSent: true });
+      // }
+
+      await timer.update({ notificationSent: true });
     }
 
     res.json({ success: true });
@@ -97,36 +99,7 @@ const sendManualNotification = async (req, res) => {
 };
 
 // // Verifica automáticamente los temporizadores activos y envía notificaciones
-// const checkTimers = async () => {
-//   try {
-//     const activeTimers = await Timer.findAll({
-//       where: {
-//         endTime: null, // Temporizadores activos
-//         notificationSent: false // Notificaciones no enviadas
-//       }
-//     });
-
-//     const now = new Date();
-
-//     for (const timer of activeTimers) {
-//       const startTime = new Date(timer.startTime);
-//       const diffHours = (now - startTime) / (1000 * 60 * 60); // Diferencia en horas
-
-//       if (diffHours >= 8) {
-//         console.log(`Enviando notificación para el temporizador ${timer.id}`);
-
-//         await sendNotification(startTime, now);
-//         await timer.update({ notificationSent: true }); // Marca como enviado
-//       }
-//     }
-//   } catch (error) {
-//     console.error('Error verificando temporizadores:', error);
-//   }
-// };
-
-// Verifica automáticamente los temporizadores activos y envía notificaciones después de 4 segundos de haber iniciado
 const checkTimers = async () => {
-  console.log('checkTimers...')
   try {
     const activeTimers = await Timer.findAll({
       where: {
@@ -139,18 +112,47 @@ const checkTimers = async () => {
 
     for (const timer of activeTimers) {
       const startTime = new Date(timer.startTime);
-      const diffSeconds = (now - startTime) / 1000; // Diferencia en segundos
+      const diffHours = (now - startTime) / (1000 * 60 * 60); // Diferencia en horas
 
-      if (diffSeconds >= 4) {
+      if (diffHours >= 8) {
         console.log(`Enviando notificación para el temporizador ${timer.id}`);
 
-        await sendNotification(startTime, now);        
+        await sendNotification(startTime, now);
+        await timer.update({ notificationSent: true }); // Marca como enviado
       }
     }
   } catch (error) {
     console.error('Error verificando temporizadores:', error);
   }
 };
+
+// Verifica automáticamente los temporizadores activos y envía notificaciones después de 4 segundos de haber iniciado
+// const checkTimers = async () => {
+//   console.log('checkTimers...')
+//   try {
+//     const activeTimers = await Timer.findAll({
+//       where: {
+//         endTime: null, // Temporizadores activos
+//         notificationSent: false // Notificaciones no enviadas
+//       }
+//     });
+
+//     const now = new Date();
+
+//     for (const timer of activeTimers) {
+//       const startTime = new Date(timer.startTime);
+//       const diffSeconds = (now - startTime) / 1000; // Diferencia en segundos
+
+//       if (diffSeconds >= 4) {
+//         console.log(`Enviando notificación para el temporizador ${timer.id}`);
+
+//         await sendNotification(startTime, now);        
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error verificando temporizadores:', error);
+//   }
+// };
 
 
 // Configura la verificación automática cada minuto

@@ -1,11 +1,10 @@
+// src/app.js
 const express = require('express');
 const path = require('path');
 const sequelize = require('./config/database');
-const Timer = require('./models/Timer'); // Importamos el modelo Timer
-require('dotenv').config();
-
 const timerRoutes = require('./routes/timer.routes');
 const viewRoutes = require('./routes/view.routes');
+require('dotenv').config();
 
 const app = express();
 
@@ -28,24 +27,5 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-const PORT = process.env.PORT || 3000;
-
-async function startServer() {
-  try {
-    // Sincronizar la base de datos
-    await sequelize.authenticate();
-    console.log('Database connection has been established successfully.');
-    
-    await sequelize.sync({ force: false });
-    console.log('Database synchronized');
-    
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('Unable to start server:', error);
-    process.exit(1);
-  }
-}
-
-startServer();
+// Exporta la aplicación para usarla en otro lugar
+module.exports = app;
